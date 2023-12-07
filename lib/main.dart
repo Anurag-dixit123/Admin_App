@@ -1,5 +1,10 @@
 
+import 'package:admin_app/Home_Screen/banner_screen.dart';
+import 'package:admin_app/Home_Screen/brand_screen.dart';
+import 'package:admin_app/Home_Screen/categories_screen.dart';
 import 'package:admin_app/Home_Screen/home_screeen.dart';
+import 'package:admin_app/Home_Screen/product_screen.dart';
+import 'package:admin_app/Splash%20Screen/splash_screen.dart';
 import 'package:admin_app/forgot_password_screens/ForgotPassword_screen.dart';
 import 'package:admin_app/forgot_password_screens/NewPassword_screen.dart';
 import 'package:admin_app/forgot_password_screens/ResetPass_verification_Screen.dart';
@@ -14,7 +19,7 @@ void main() async {
   await Firebase.initializeApp();
 
   runApp(MaterialApp(
-      initialRoute: 'LoginScreen', // Set the initial route to the login screen
+      initialRoute: 'SplashScreen', // Set the initial route to the login screen
       routes: {
         'LoginScreen': (context) => LoginScreen(), // Define the login screen route
         'PhoneVerification': (context) => MyPhone(), // Define the login screen route
@@ -23,6 +28,11 @@ void main() async {
         'RecheckVerificationScreen': (context) => OTPVerificationScreen(), // Define the login screen route
         'NewPasswordScreen': (context) => NewPasswordScreen(), // Define the login screen route
         'HomeScreen': (context) => HomeScreen(), // Define the login screen route
+        'SplashScreen': (context) => MySplashScreen(), // Define the login screen route
+        'BannerScreen': (context) => BannerScreen(),
+        'BrandScreen': (context) => BrandScreen(),
+        'CategoriesScreen': (context) => CategoriesScreen(),
+        'ProductScreen': (context) => ProductScreen(),
 
         // Add more routes as needed
       },

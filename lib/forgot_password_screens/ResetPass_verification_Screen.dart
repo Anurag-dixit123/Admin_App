@@ -1,22 +1,24 @@
+//
 // import 'package:flutter/material.dart';
 // import 'package:pin_input_text_field/pin_input_text_field.dart';
-//
-// void main() {
-//   runApp(OTPVerificationScreen());
-// }
+// import 'package:firebase_auth/firebase_auth.dart';
 //
 // class OTPVerificationScreen extends StatefulWidget {
 //   @override
-//   _OTPVerificationScreenState createState() => _OTPVerificationScreenState();
+//   _OTPVerificationScreenState createState() =>
+//       _OTPVerificationScreenState();
 // }
 //
-// class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
+// class _OTPVerificationScreenState
+//     extends State<OTPVerificationScreen> {
 //   TextEditingController otpController = TextEditingController();
 //   String errorMessage = '';
 //
-//
 //   @override
 //   Widget build(BuildContext context) {
+//     final String verificationId =
+//     ModalRoute.of(context)?.settings.arguments as String;
+//
 //     return MaterialApp(
 //       home: Scaffold(
 //         resizeToAvoidBottomInset: false,
@@ -25,7 +27,7 @@
 //             gradient: LinearGradient(
 //               begin: Alignment.topLeft,
 //               end: Alignment.bottomCenter,
-//               colors: [Colors.teal.shade400, Colors.grey[100]!], // Set gradient colors
+//               colors: [Colors.teal.shade400, Colors.grey[100]!],
 //             ),
 //           ),
 //           child: Padding(
@@ -61,7 +63,7 @@
 //                 Container(
 //                   width: 280,
 //                   child: Text(
-//                     "Enter the verification code we just sent to you on  your mobile number.",
+//                     "Enter the verification code we just sent to you on your mobile number.",
 //                     style: TextStyle(fontSize: 18),
 //                     textAlign: TextAlign.center,
 //                   ),
@@ -74,11 +76,12 @@
 //                   onChanged: (otp) {
 //                     if (otp.length == 6) {
 //                       // Handle OTP verification when the length is 6
+//                       _verifyOTP(verificationId, otp);
 //                     }
 //                   },
 //                   decoration: UnderlineDecoration(
 //                     colorBuilder: FixedColorBuilder(
-//                         Colors.red,
+//                       Colors.red,
 //                     ),
 //                   ),
 //                 ),
@@ -86,14 +89,19 @@
 //                 Row(
 //                   children: [
 //                     Text("if you didn't receive a code!"),
-//                     TextButton(onPressed: (){
-//
-//                     }
-//                         , child: Text('Resend', style: TextStyle(color: Colors.blue, fontSize: 15),))
+//                     TextButton(
+//                       onPressed: () {
+//                         // Implement resend OTP logic here
+//                       },
+//                       child: Text(
+//                         'Resend',
+//                         style: TextStyle(color: Colors.blue, fontSize: 15),
+//                       ),
+//                     ),
 //                   ],
 //                 ),
 //                 Text(
-//                   errorMessage, // Display error message if present
+//                   errorMessage,
 //                   style: TextStyle(
 //                     color: Colors.red,
 //                     fontSize: 16,
@@ -104,10 +112,10 @@
 //                   width: 120,
 //                   height: 45,
 //                   child: ElevatedButton(
-//                     onPressed: ()  {
+//                     onPressed: () {
 //                       // Handle the "Verify" button tap here
 //                       String otp = otpController.text;
-//                       Navigator.pushNamed(context, 'NewPasswordScreen');
+//                       _verifyOTP(verificationId, otp);
 //                     },
 //                     style: ElevatedButton.styleFrom(
 //                       backgroundColor: Colors.red,
@@ -125,12 +133,36 @@
 //       ),
 //     );
 //   }
+//
+//   Future<void> _verifyOTP(String verificationId, String otp) async {
+//     try {
+//       PhoneAuthCredential credential = PhoneAuthProvider.credential(
+//         verificationId: verificationId,
+//         smsCode: otp,
+//       );
+//
+//       // Sign in with the phone credential
+//       await FirebaseAuth.instance.signInWithCredential(credential);
+//
+//       // TODO: Navigate to the new password screen or handle the next steps
+//       Navigator.pushNamed(context, 'NewPasswordScreen');
+//     } catch (e) {
+//       setState(() {
+//         errorMessage = 'Invalid OTP. Please try again.';
+//       });
+//     }
+//   }
 // }
 
 
 import 'package:flutter/material.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(OTPVerificationScreen());
+}
 
 class OTPVerificationScreen extends StatefulWidget {
   @override
@@ -142,12 +174,65 @@ class _OTPVerificationScreenState
     extends State<OTPVerificationScreen> {
   TextEditingController otpController = TextEditingController();
   String errorMessage = '';
+  String phoneNumber = '';
+  String verificationId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPhoneNumber();
+  }
+
+  Future<void> _loadPhoneNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      phoneNumber = prefs.getString('phoneNumber') ?? '';
+      verificationId = prefs.getString('verificationId') ?? '';
+    });
+  }
+
+  Future<void> _resendOTP(String phoneNumber) async {
+    try {
+      // Format the phone number in E.164 format (e.g., +911234567890)
+      String formattedPhoneNumber = '+91$phoneNumber';
+
+      // Use the formatted phone number to resend the OTP
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: formattedPhoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationFailed: (FirebaseAuthException e) {},
+        codeSent: (String newVerificationId, int? resendToken) {
+          // Update the verificationId with the new one
+          setState(() {
+            verificationId = newVerificationId;
+          });
+
+          // Save the new verificationId to SharedPreferences
+          _saveVerificationId(newVerificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+
+      // Show a message to the user indicating that the OTP has been resent
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("OTP Resent"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      // Handle errors, if any
+      print("Error resending OTP: $e");
+    }
+  }
+
+  Future<void> _saveVerificationId(String newVerificationId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('verificationId', newVerificationId);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final String verificationId =
-    ModalRoute.of(context)?.settings.arguments as String;
-
     return MaterialApp(
       home: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -217,10 +302,11 @@ class _OTPVerificationScreenState
                 SizedBox(height: 20),
                 Row(
                   children: [
-                    Text("if you didn't receive a code!"),
+                    Text("if you didn't receive a code : "),
                     TextButton(
                       onPressed: () {
-                        // Implement resend OTP logic here
+                        // Call the method to resend OTP
+                        _resendOTP(phoneNumber);
                       },
                       child: Text(
                         'Resend',
