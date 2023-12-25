@@ -37,7 +37,7 @@
 // }
 
 import 'package:flutter/material.dart';
-import 'package:admin_app/Home_Screen/banner_screen.dart';
+import 'sidebar_screen.dart';
 
 
 void main() {
@@ -66,10 +66,11 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Center(child: Text('AddSpot')),
         backgroundColor: Colors.teal[500],
-        automaticallyImplyLeading: false, // Add this line to disable the back button
-
+        // automaticallyImplyLeading: false, // Add this line to disable the back button
       ),
-
+      drawer: Drawer(
+        child: SidebarScreen(),
+      ),
       body: SingleChildScrollView(
         child: Container(
           child: Padding(
@@ -421,6 +422,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:admin_app/Home_Screen/brand_screen.dart';
 import 'package:admin_app/Home_Screen/categories_screen.dart';
 import 'package:admin_app/Home_Screen/home_screeen.dart';
 import 'package:admin_app/Home_Screen/product_screen.dart';
+import 'package:admin_app/Home_Screen/sidebar_screen.dart';
 import 'package:admin_app/Splash%20Screen/splash_screen.dart';
 import 'package:admin_app/forgot_password_screens/ForgotPassword_screen.dart';
 import 'package:admin_app/forgot_password_screens/NewPassword_screen.dart';
@@ -32,7 +33,8 @@ void main() async {
         'BannerScreen': (context) => BannerScreen(),
         'BrandScreen': (context) => BrandScreen(),
         'CategoriesScreen': (context) => CategoriesScreen(),
-        'ProductScreen': (context) => ProductScreen(),
+        'ProductScreen': (context) => AddProductScreen(),
+        'SidebarScreem': (context) => SidebarScreen(),
 
         // Add more routes as needed
       },

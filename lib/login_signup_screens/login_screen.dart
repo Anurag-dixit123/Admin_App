@@ -1,3 +1,4 @@
+import 'package:admin_app/Api_codes.dart';
 import 'package:flutter/material.dart';
 
 
@@ -10,6 +11,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController mobileNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isPasswordVisible = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Add this line
+  late AuthenticationService authService; // Remove the initialization here
+
+  @override
+  void initState() {
+    super.initState();
+    authService = AuthenticationService(context); // Initialize authService in initState
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           padding: EdgeInsets.all(20.0),
           child: Form(
+            key: _formKey,
             child: Column(
               children: <Widget>[
                 SizedBox(height: 50),
@@ -80,9 +92,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value!.isEmpty) {
                       return 'Please enter your mobile number';
                     }
+                    // Mobile number validation using a regular expression
+                    if (!RegExp(r"^(?:[+0]9)?[0-9]{10}$").hasMatch(value)) {
+                      return 'Invalid mobile number';
+                    }
                     return null;
                   },
                 ),
+
                 SizedBox(height: 20),
                 TextFormField(
                   controller: passwordController,
@@ -124,8 +141,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: ()  {
-                      Navigator.pushNamed(context,'HomeScreen');
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        try {
+                          // Use the actual user ID and password entered by the user
+                          await authService.login(
+                            mobileNumberController.text,
+                            passwordController.text,
+                          );
+
+                          // If login is successful, navigate to the HomeScreen
+                          // Navigator.pushNamed(context, 'HomeScreen');
+                        } catch (e) {
+                          print('Error during login: $e');
+                          // Handle login failure (show an error message, etc.)
+                        }
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -147,17 +178,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 225,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextButton(onPressed: (){
                       Navigator.pushNamed(context, 'ForgotPasswordScreen');
-                    }, child: Text('forgot password?', style: TextStyle(fontSize: 16, ),)),
+                    }, child: Text('forgot password?', style: TextStyle(fontSize: 15, ),)),
                     SizedBox(
                       width: 50,
                     ),
                     TextButton(onPressed: (){
                       Navigator.pushNamed(context, 'PhoneVerification');
-                    }, child: Text('create account', style: TextStyle(fontSize: 16, ),))
+                    }, child: Text('create account', style: TextStyle(fontSize: 15, ),))
                   ],
                 )
               ],
