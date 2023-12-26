@@ -407,7 +407,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            ' 0 ',
+                            ' 0 ',    
                             style: TextStyle(color: Colors.black, fontSize: 24,
                             ),
                           ),
@@ -416,7 +416,9 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-
+                           ElevatedButton(onPressed: (){
+                             Navigator.pushNamed(context, 'GraphScreen');
+                           }, child: Text('Abhi'))
               ],
             ),
           ),

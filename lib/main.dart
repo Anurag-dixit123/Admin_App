@@ -2,6 +2,7 @@
 import 'package:admin_app/Home_Screen/banner_screen.dart';
 import 'package:admin_app/Home_Screen/brand_screen.dart';
 import 'package:admin_app/Home_Screen/categories_screen.dart';
+import 'package:admin_app/Home_Screen/graph_Screen.dart';
 import 'package:admin_app/Home_Screen/home_screeen.dart';
 import 'package:admin_app/Home_Screen/product_screen.dart';
 import 'package:admin_app/Home_Screen/sidebar_screen.dart';
@@ -34,7 +35,8 @@ void main() async {
         'BrandScreen': (context) => BrandScreen(),
         'CategoriesScreen': (context) => CategoriesScreen(),
         'ProductScreen': (context) => AddProductScreen(),
-        'SidebarScreem': (context) => SidebarScreen(),
+        'SidebarScreen': (context) => SidebarScreen(),
+        'GraphScreen': (context) => BarChartScreen(),
 
         // Add more routes as needed
       },
